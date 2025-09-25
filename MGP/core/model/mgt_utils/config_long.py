@@ -1,7 +1,7 @@
 import argparse
 
 def vq_args_parser():
-    parser = argparse.ArgumentParser(description='Optimal Transport AutoEncoder training for AIST',
+    parser = argparse.ArgumentParser(description='Optimal Transport AutoEncoder',
                                      add_help=True,
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     ## dataloader

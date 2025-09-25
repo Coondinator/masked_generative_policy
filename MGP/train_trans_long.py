@@ -59,7 +59,6 @@ class TrainDP3Workspace:
         random.seed(seed)
 
         # configure model
-        # self.model: DP3 = hydra.utils.instantiate(cfg.policy)
         self.model = MGT(shape_meta=cfg.policy.shape_meta,
             # noise_scheduler: DDPMScheduler,
                          horizon=cfg.policy.horizon,
@@ -88,13 +87,7 @@ class TrainDP3Workspace:
 
     def run(self):
         cfg = copy.deepcopy(self.cfg)
-        RUN_VALIDATION = False # reduce time cost     
-        # # resume training
-        # if cfg.training.resume:
-        #     lastest_ckpt_path = self.get_checkpoint_path()
-        #     if lastest_ckpt_path.is_file():
-        #         print(f"Resuming from checkpoint {lastest_ckpt_path}")
-        #         self.load_checkpoint(path=lastest_ckpt_path)
+
 
         # configure dataset
         dataset: BaseDataset
@@ -168,16 +161,6 @@ class TrainDP3Workspace:
             if nb_iter % self.model.args_trans.print_iter == 0:
                 print(f'Iter {nb_iter} : Loss. {loss_cls:.5f}, ACC. {loss_dict["acc_overall"]:.4f}',
                     f'ACC_masked. {loss_dict["acc_masked"]:.4f}', f'ACC_no_masked. {loss_dict["acc_no_masked"]:.4f}')
-                if use_wandb:
-                    wandb.log({
-                        "Train/Iteration": nb_iter,
-                        # "Train/Total_trans_Loss": total_loss,
-                        "Train/Loss": loss_cls,
-                        # "Train/Loss_mse": loss_dict["loss_mse"],
-                        "Train/ACC": loss_dict["acc_overall"],
-                        "Train/ACC_masked": loss_dict["acc_masked"],
-                        "Train/ACC_no_masked": loss_dict["acc_no_masked"],
-                    }, step=nb_iter)
 
             # ========= eval for this epoch ==========
             # policy = self.model
@@ -333,8 +316,8 @@ class TrainDP3Workspace:
         return output_dir
 
     def test_env(self, cfg, data_dir):
-        output_dir0 = 'mgt_output/test_env/'
-        output_dir1 = 'mgt_output/test_env/'     
+        output_dir0 = 'output/test_env/'
+        output_dir1 = 'output/test_env/'
         device = self.model.device
         visual_data = zarr.open(data_dir, mode='r')
         episode_ends = visual_data['meta']['episode_ends']

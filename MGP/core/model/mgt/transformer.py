@@ -175,24 +175,16 @@ class CrossCondTransBase(nn.Module):
             module.weight.data.fill_(1.0)
 
     def forward(self, idx, src_mask, comb_state):
-        # if len(idx) == 0:
-        #     token_embeddings = self.cond_emb(clip_feature).unsqueeze(1)
-        # else:
         b, t = idx.size()
-        # print('idx:', idx.shape)
         assert t <= self.block_size, "Cannot forward, model block size is exhausted."
-        # forward the Trans model
+
         not_learn_idx = idx < self.vqvae.nb_code
         learn_idx = ~not_learn_idx
-        # print('not_learn_idx:', not_learn_idx[0])
-        # print('not_learn_idx:', idx[not_learn_idx].shape)
+
         token_embeddings = torch.empty((*idx.shape, self.vqvae.code_dim), device=idx.device)
         token_embeddings[not_learn_idx] = self.vqvae.quantizer.dequantize(idx[not_learn_idx]).requires_grad_(
             False)
         computed_index = idx[learn_idx] - self.vqvae.nb_code
-        # print("Debug: idx[learn_idx] =", idx[learn_idx].cpu().numpy())
-        # print("Debug: self.vqvae.nb_code =", self.vqvae.nb_code)
-        # print("Debug: computed index =", computed_index.cpu().numpy())
 
         # Then do the lookup:
         token_embeddings[learn_idx] = self.learn_tok_emb(computed_index)
@@ -207,8 +199,7 @@ class CrossCondTransBase(nn.Module):
             token_embeddings = self.pos_embed(token_embeddings)
             for module in self.cross_att:
                 token_embeddings = module(token_embeddings, comb_state_emb)
-        # token_embeddings = torch.cat([self.cond_emb(clip_feature).unsqueeze(1), token_embeddings], dim=1)
-        # print('token_embeddings:', token_embeddings.shape)
+
         x = self.pos_embed(token_embeddings)
         for block in self.blocks:
             x = block(x, src_mask)
@@ -261,11 +252,6 @@ class CrossCondTransHead(nn.Module):
         logits = self.head(x)
         return logits
 
-'''
-Head process: 
-after a final layer norm, it prohects the representation with a linear layer into logits for each position
-[bs,l,num_vq]
-'''
 
 class ActTransformer(nn.Module):
     def __init__(self,
@@ -288,26 +274,18 @@ class ActTransformer(nn.Module):
         self.block_size = block_size
         self.num_vq = num_vq
         # print('parameter',sum(p.numel() for p in self.parameters()))
-    def get_attn_mask(self, src_mask, att_txt=None):
-        # if att_txt is None:
-        #     att_txt = torch.tensor([[True]]*src_mask.shape[0]).to(src_mask.device)
-        #     print('att_txt:', att_txt.shape)
-        # src_mask = torch.cat([att_txt, src_mask],  dim=1)
-        # print('src_mask:', src_mask.shape)
+    def get_attn_mask(self, src_mask):
+
         B, T = src_mask.shape
         src_mask = src_mask.view(B, 1, 1, T).repeat(1, self.n_head, T, 1)
         return src_mask
 
     def forward(self, idx, src_mask, comb_state):
-        # idx [bs,L]; src_mask [bs,L]; state[bs,state_dim]
+
         if src_mask is not None:
             src_mask = self.get_attn_mask(src_mask)
-        # print('src_mask in act:', src_mask.shape)
         feat = self.trans_base(idx, src_mask, comb_state)
-        # trans_base: converts a sequence of discrete codes into a seq of continuous vectors that carry both token information
-        # and conditioning information
         logits = self.trans_head(feat, src_mask)
-        # trans_head: The result is a tensor of logits (unnormalized probabilities) over the vocabulary for every position in the sequence.
         return logits
 
     def fast_sample_firsttoken(self, first_tokens, src_mask, comb_state, m_length=12, step=1, gt=None):
@@ -373,24 +351,15 @@ class ActTransformer(nn.Module):
             else:
                 temperature = 0  # starting_temperature * (steps_until_x0 / timesteps) # temperature is annealed
 
-            # [INFO] if temperature==0: is equal to argmax (filtered_logits.argmax(dim = -1))
-            # pred_ids = filtered_logits.argmax(dim = -1)
             pred_ids = gumbel_sample(filtered_logits, temperature=temperature, dim=-1)
             is_mask = ids == mask_id
             ids = torch.where(is_mask, pred_ids, ids)
 
-            # if timestep == 1.:
-            #     print(probs_without_temperature.shape)
             probs_without_temperature = logits.softmax(dim=-1)
             scores = 1 - probs_without_temperature.gather(-1, pred_ids[..., None])
             scores = rearrange(scores, '... 1 -> ...')
             scores = scores.masked_fill(~is_mask, 0)
-            # print('ids after:', ids[:,0])
-            # print('gt:', gt[:,0])
-            # ids after: tensor([3302, 1355, 6743, 8192, 8193, 8193, 8193, 8193, 8193, 8193, 8193, 8193,
-            # 8193, 8193, 8193], device='cuda:0')
-            # gt: tensor([3302, 6085, 1868, 8192, 8193, 8193, 8193, 8193, 8193, 8193, 8193, 8193,
-            # 8193, 8193, 8193, 8193], device='cuda:0', dtype=torch.int32)
+
 
         return ids
 
@@ -422,14 +391,8 @@ class ActTransformer(nn.Module):
 
         # ids[:, 0] = first_tokens
         sample_max_steps = torch.round(step / m_length * m_tokens_len) + 1e-8
-        '''
-        need to check!!!
-        '''
-        # if src_mask is not None:
-        #         src_mask = self.get_attn_mask(src_mask)
+
         for i in range(step):
-            # if src_mask is not None:
-            #     src_mask = self.get_attn_mask(src_mask)
 
             timestep = torch.clip(step / (sample_max_steps), max=1)
             rand_mask_prob = cosine_schedule(timestep)
@@ -448,7 +411,7 @@ class ActTransformer(nn.Module):
             last_index = sorted_score_indices.gather(-1, num_token_masked.unsqueeze(-1) - 1)
             sorted_score_indices = sorted_score_indices * select_masked_indices + (last_index * ~select_masked_indices)           
             ids.scatter_(-1, sorted_score_indices, mask_id)          
-            # ids[:, 0] = first_tokens
+
             logits = self.forward(idx=ids, src_mask=src_token_mask, comb_state=comb_state)[:, 0:]
             filtered_logits = logits  # top_p(logits, .5) # #top_k(logits, topk_filter_thres)
             if rand_pos:
@@ -456,24 +419,16 @@ class ActTransformer(nn.Module):
             else:
                 temperature = 0  # starting_temperature * (steps_until_x0 / timesteps) # temperature is annealed
 
-            # [INFO] if temperature==0: is equal to argmax (filtered_logits.argmax(dim = -1))
-            # pred_ids = filtered_logits.argmax(dim = -1)
             pred_ids = gumbel_sample(filtered_logits, temperature=temperature, dim=-1)
             is_mask = ids == mask_id
             ids = torch.where(is_mask, pred_ids, ids)
 
-            # if timestep == 1.:
-            #     print(probs_without_temperature.shape)
+
             probs_without_temperature = logits.softmax(dim=-1)
             scores = 1 - probs_without_temperature.gather(-1, pred_ids[..., None])
             scores = rearrange(scores, '... 1 -> ...')
             scores = scores.masked_fill(~is_mask, 0)
-            # print('ids after:', ids[:,0])
-            # print('gt:', gt[:,0])
-            # ids after: tensor([3302, 1355, 6743, 8192, 8193, 8193, 8193, 8193, 8193, 8193, 8193, 8193,
-            # 8193, 8193, 8193], device='cuda:0')
-            # gt: tensor([3302, 6085, 1868, 8192, 8193, 8193, 8193, 8193, 8193, 8193, 8193, 8193,
-            # 8193, 8193, 8193, 8193], device='cuda:0', dtype=torch.int32)
+
 
         return ids
 

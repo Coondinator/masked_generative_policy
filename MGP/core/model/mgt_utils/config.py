@@ -45,7 +45,7 @@ def vq_args_parser():
     parser.add_argument("--resume-gpt", type=str, default=None, help='resume pth for GPT')
 
     ## output directory
-    parser.add_argument('--out-dir', type=str, default='/home/lipeng/Downloads/Lipeng_human_demonstration_icra/3D-Diffusion-Policy-master-MGT/3D-Diffusion-Policy/data/vq_output', help='output directory')
+    parser.add_argument('--out-dir', type=str, default='', help='output directory')
     parser.add_argument('--results-dir', type=str, default='visual_results/', help='output directory')
     parser.add_argument('--visual-name', type=str, default='baseline', help='output directory')
     parser.add_argument('--exp-name', type=str, default='exp_debug',

@@ -141,10 +141,3 @@ class ActVQ(nn.Module):
         x_decoder = self.decoder(x_quantized) # (b,4,64)
         x_out = self.postprocess(x_decoder) # (b,64,4)
         return x_out, loss, perplexity
-'''
-xin: torch.Size([8, 4, 200])
-x_encoder: torch.Size([8, 16, 50])
-x_quantized: torch.Size([8, 16, 50])
-x_decoder: torch.Size([8, 4, 200])
-x_out: torch.Size([8, 200, 4])
-'''

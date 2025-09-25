@@ -63,7 +63,6 @@ class TrainDP3Workspace:
         random.seed(seed)
 
         # configure model
-        # self.model: DP3 = hydra.utils.instantiate(cfg.policy)
         self.model = MGT(shape_meta=cfg.policy.shape_meta,
                         # noise_scheduler: DDPMScheduler,
                         horizon=cfg.policy.horizon,
@@ -115,31 +114,8 @@ class TrainDP3Workspace:
         self.model.set_normalizer(normalizer)
 
         cprint("-----------------------------", "yellow")
-        cprint(f"[WandB] group: {cfg.logging.group}", "yellow")
-        cprint(f"[WandB] name: {cfg.logging.name}", "yellow")
         cprint("-----------------------------", "yellow")
         # configure logging
-        use_wandb = True   
-        if use_wandb:    
-            # self.wandb_run = wandb.init(
-            #     dir=str(self._output_dir),
-            #     config=OmegaConf.to_container(cfg, resolve=True),
-            #     **cfg.logging
-            # )
-            # wandb.config.update(
-            #     {
-            #         "output_dir": self._output_dir,
-            #     }
-            # )
-            
-            self.wandb_run = wandb.init(
-                project="diffusion_policy_MGT", ## change to VQ project, seperate VQ and Trans
-                name='vq',
-                group=cfg.logging.group
-            )
-        else:
-            self.wandb_run = None
-
         # configure checkpoint
 
         # topk_manager = TopKCheckpointManager(
@@ -158,7 +134,7 @@ class TrainDP3Workspace:
         print(f"Starting {self.model.args_vq.warm_up_iter} warmup iterations...")
         avg_recons, avg_perplexity, avg_commit = 0., 0., 0.
 
-        output_dir = 'mgt_output/vq_visual/'
+        output_dir = 'output/vq_visual/'
         env_runner_MGT: BaseRunner
         env_runner_MGT = hydra.utils.instantiate(cfg.task.env_runner_MGT, output_dir)
         
@@ -193,14 +169,6 @@ class TrainDP3Workspace:
                     f"Recon: {avg_recons:.4f} | "
                     f"Commit: {avg_commit:.4f} | "
                     f"PPL: {avg_perplexity:.2f}")
-                if use_wandb:
-                    wandb.log({
-                        "Warmup/Iteration": nb_iter,
-                        "Warmup/Learning_Rate": current_lr,
-                        "Warmup/Recon_Loss": avg_recons,
-                        "Warmup/Commit_Loss": avg_commit,
-                        "Warmup/Perplexity": avg_perplexity,
-                    }, step=nb_iter)
                 
                 avg_recons, avg_perplexity, avg_commit = 0., 0., 0.
 
@@ -228,27 +196,7 @@ class TrainDP3Workspace:
                 current_lr = self.optimizer.param_groups[0]['lr']
                 print(
                     f"Train. Iter {nb_iter} :  lr {current_lr:.5f} \t Commit. {avg_commit:.5f} \t PPL. {avg_perplexity:.2f} \t Recons.  {avg_recons:.5f}")
-                if use_wandb:
-                    wandb.log({
-                            "Train/Iteration": nb_iter,
-                            "Train/Learning_Rate": current_lr,
-                            "Train/Recon_Loss": avg_recons,
-                            "Train/Commit_Loss": avg_commit,
-                            "Train/Perplexity": avg_perplexity,
-                            "Train/Total_Loss": total_loss.item(),
-                        }, step=nb_iter)
-                
 
-                # step_log = {
-                #         'lr': current_lr,
-                #         'train_loss': total_loss.item(),
-                #         'loss_recon': loss_dict['loss_recon'],
-                #         'loss_commit': loss_dict['loss_commit'],
-                #         'perplexity': loss_dict['perplexity']
-                #     }
-
-                # step_log.update(loss_dict)
-                # step_log['train_loss'] = total_loss
                 avg_recons, avg_perplexity, avg_commit = 0., 0., 0.
         
             # ========= eval for this epoch ==========
@@ -266,44 +214,15 @@ class TrainDP3Workspace:
                 avg_commit += loss_dict['loss_commit']
                 print(
                     f"Test. Iter {nb_iter} :  lr {current_lr:.5f} \t Commit. {avg_commit:.5f} \t PPL. {avg_perplexity:.2f} \t Recons.  {avg_recons:.5f}")
-                if use_wandb:
-                    wandb.log({
-                        "Test/Iteration": nb_iter,
-                        "Test/Learning_Rate": current_lr,
-                        "Test/Recon_Loss": loss_dict['loss_recon'],
-                        "Test/Commit_Loss": loss_dict['loss_commit'],
-                        "Test/Perplexity": loss_dict['perplexity'],
-                        "Test/Total_Loss": total_loss.item(),
-                    }, step=nb_iter)
-                
-                
-                avg_recons, avg_perplexity, avg_commit = 0., 0., 0.
-                
-                
-                
-                # step_log = {
-                #         'lr': current_lr,
-                #         'test_loss': total_loss.item(),
-                #         'test_loss_recon': loss_dict['loss_recon'],
-                #         'test_loss_commit': loss_dict['loss_commit'],
-                #         'test_perplexity': loss_dict['perplexity']
-                #     }
-                    
-                # ========= eval end for this epoch ==========
 
-                # end of epoch
-                # log of last step is combined with validation and rollout
-                # wandb_run.log(step_log, step=self.global_step)
-                # del step_log
-        
+                avg_recons, avg_perplexity, avg_commit = 0., 0., 0.
+
             if nb_iter % self.model.args_vq.save_iter == 0:
                 # torch.save({'net': policy.state_dict()}, os.path.join(vq_out_dir, f'{nb_iter}_net_last.pth'))
                 torch.save({'net': policy.state_dict()}, os.path.join(vq_out_dir, f'{self.task_name}_{nb_iter}.pth'))
             if nb_iter % self.model.args_vq.visual_iter == 0:
                 self.visual_vq(cfg, cfg.policy.horizon, cfg.task.vq_dataset.zarr_path, env=env_runner_MGT, pad_mode=False)
 
-        if use_wandb:
-            wandb.finish()
 
     def visual_vq(self, cfg, horizon, data_dir, env=None, pad_mode=False):
         # self.model.eval()
@@ -421,44 +340,6 @@ def main(cfg):
     print("Start training...")
     workspace = TrainDP3Workspace(cfg)
     workspace.run()
-    # vq_model = workspace.model.vq_model
-    # vq_model.eval()
-    # vq_model.cuda()
-    
-    # args_vq = workspace.model.args_vq
-    # codebook_dir = os.path.join(args_vq.out_dir, 'codebook')
-    # os.makedirs(codebook_dir, exist_ok=True)
-    # print(f'Generating codebook in {codebook_dir}')
-
-    # if len(os.listdir(codebook_dir)) == 0:
-    #     # Use DP3's existing dataset configuration
-    #     dataset = hydra.utils.instantiate(cfg.task.vq_dataset)
-    #     train_dataloader = DataLoader(dataset, batch_size=1, shuffle=False, drop_last=False)
-
-    #     # Get normalizer from workspace
-    #     # normalizer = workspace.model.normalizer
-    #     val_dataset = dataset.get_validation_dataset()
-    #     val_dataloader = DataLoader(val_dataset, batch_size=1, shuffle=False, drop_last=False)
-
-    #     dataloaders = [
-    #         ('train', train_dataloader),
-    #         ('val', val_dataloader)
-    #     ]
-    #     for dataloader_name, dataloader in dataloaders:
-    #         for i, batch in tqdm(enumerate(dataloader), 
-    #                         desc=f"Generating {dataloader_name} codebook"):
-    #             # Move data to GPU and normalize
-    #             batch = dict_apply(batch, lambda x: x.to(device='cuda'))
-    #             action = batch['action'].float()
-                
-    #             with torch.no_grad():
-    #                 target = vq_model.encode(action)
-                
-    #             # Save with dataset prefix to avoid name collisions
-    #             target = target.cpu().numpy()
-    #             fname = os.path.join(codebook_dir, f'{dataloader_name}_{i}.npy')
-    #             np.save(fname, target)
-
 
 if __name__ == "__main__":
     main()
