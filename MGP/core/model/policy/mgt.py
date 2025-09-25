@@ -11,14 +11,11 @@ import pytorch3d.ops as torch3d_ops
 import os
 from diffusion_policy_3d.model.common.normalizer import LinearNormalizer
 from diffusion_policy_3d.policy.base_policy import BasePolicy
-from diffusion_policy_3d.model.diffusion.conditional_unet1d import ConditionalUnet1D
-from diffusion_policy_3d.model.diffusion.mask_generator import LowdimMaskGenerator
 from diffusion_policy_3d.common.pytorch_util import dict_apply
 from diffusion_policy_3d.common.model_util import print_params
 from diffusion_policy_3d.model.vision.pointnet_extractor import DP3Encoder
 
 from diffusion_policy_3d.model.mgt.act_vq import ActVQ
-# from diffusion_policy_3d.model.mgt_utils.config import vq_args_parser,trans_args_parser
 from diffusion_policy_3d.model.mgt_utils.config_long import vq_args_parser, trans_args_parser
 from diffusion_policy_3d.model.mgt.transformer import ActTransformer
 import diffusion_policy_3d.model.mgt_utils.losses as losses
