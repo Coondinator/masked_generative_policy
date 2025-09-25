@@ -64,7 +64,6 @@ class TrainDP3Workspace:
 
         # configure model
         self.model = MGT(shape_meta=cfg.policy.shape_meta,
-                        # noise_scheduler: DDPMScheduler,
                         horizon=cfg.policy.horizon,
                         n_action_steps=cfg.policy.horizon,
                         n_obs_steps=cfg.policy.horizon,
@@ -247,7 +246,6 @@ class TrainDP3Workspace:
                     end = start + remain
                 else:
                     end = (i + 1) * horizon
-
 
                 train_clip = train_action[start:end].unsqueeze(0)
                 val_clip = val_action[start:end].unsqueeze(0)

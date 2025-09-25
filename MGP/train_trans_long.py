@@ -50,7 +50,6 @@ class TrainDP3Workspace:
         self._output_dir = output_dir
         self._saving_thread = None
         
-        # set seed
         seed = cfg.training.seed
         torch.manual_seed(seed)
         torch.cuda.manual_seed(seed)
@@ -60,7 +59,6 @@ class TrainDP3Workspace:
 
         # configure model
         self.model = MGT(shape_meta=cfg.policy.shape_meta,
-            # noise_scheduler: DDPMScheduler,
                          horizon=cfg.policy.horizon,
                          n_action_steps=cfg.policy.horizon,
                          n_obs_steps=cfg.policy.horizon,

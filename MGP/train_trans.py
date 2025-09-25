@@ -58,10 +58,8 @@ class TrainDP3Workspace:
         random.seed(seed)
 
         # configure model
-        # self.model: DP3 = hydra.utils.instantiate(cfg.policy)
         self.model = MGT(shape_meta=cfg.policy.shape_meta,
-            # noise_scheduler: DDPMScheduler,
-            horizon=cfg.policy.horizon, 
+            horizon=cfg.policy.horizon,
             n_action_steps=cfg.policy.horizon, 
             n_obs_steps=cfg.policy.horizon,
             encoder_output_dim=cfg.policy.encoder_output_dim,
@@ -146,15 +144,13 @@ class TrainDP3Workspace:
 
             # ========= eval for this epoch ==========
             # policy = self.model
-            # policy.eval()          
+            # policy.eval()
           # run validation
             if nb_iter % self.model.args_trans.eval_rand_iter == 0:
-                # policy = self.model
-                # policy.eval()
+
                 self.model.trans_eval()
                 test_loss_total = 0.0
-                # test_loss_mse = 0.0
-                # test_loss_recons = 0.0
+
                 test_acc_total =  0.0
                 test_mask_acc_total =  0.0
                 test_no_mask_acc_total =  0.0
