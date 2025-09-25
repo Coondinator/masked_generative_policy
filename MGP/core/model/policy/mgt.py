@@ -262,7 +262,6 @@ class MGT(BasePolicy):
             # print('action',action[0])
             action = self.normalizer['action'].normalize(action)
             denormed_gt = self.normalizer['action'].unnormalize(action)
-            # print('denormed_gt',denormed_gt[0])
             target_token = self.vq_model.encode(action)  # new code
             batch_size = action.shape[0]  # new code
             m_tokens = self.regression_token_process(target_token)  # new code
@@ -298,8 +297,7 @@ class MGT(BasePolicy):
         src_mask = generate_src_mask(
             max_len, m_tokens_len + 1
         )
-        # unnormalize prediction
-        # naction_pred = nsample[...,:Da]
+
         with torch.no_grad():
             sampled_tokens = self.trans_model.fast_sample(
                 # first_tokens=first_tokens,
@@ -335,7 +333,6 @@ class MGT(BasePolicy):
             # print('action',action[0])
             action = self.normalizer['action'].normalize(action)
             denormed_gt = self.normalizer['action'].unnormalize(action)
-            # print('denormed_gt',denormed_gt[0])
             target_token = self.vq_model.encode(action)  # new code
             batch_size = action.shape[0]  # new code
             # m_tokens = self.regression_token_process(target_token)
@@ -431,10 +428,9 @@ class MGT(BasePolicy):
         src_mask = generate_src_mask(
             max_len, m_tokens_len + 1
         )
-        # m_length = torch.full((batch_size,), 204, dtype=torch.long, device=self.device)
 
         with torch.no_grad():
-            sampled_tokens, sampled_scores = self.trans_model.regressive_sample_ph(
+            sampled_tokens, sampled_scores = self.trans_model.regressive_sample_re(
                 tokens=tokens,
                 src_mask=src_mask,
                 act_t=act_time,
@@ -799,5 +795,4 @@ class MGT(BasePolicy):
         offset_zero = torch.zeros((B,), dtype=torch.long, device=self.device)  # full length for each sample
         token_offset = torch.floor(torch.rand(B, device=self.device) * (m_token_length - 2)).long()  # start token idx [1 -> max idx]
         real_offset = torch.where(torch.rand(B, device=self.device) < 0.3, offset_zero, token_offset)
-        # obs_offset = 4 * real_offset - 4
         return real_offset

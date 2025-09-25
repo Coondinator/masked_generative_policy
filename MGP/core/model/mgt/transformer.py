@@ -205,13 +205,6 @@ class CrossCondTransBase(nn.Module):
             x = block(x, src_mask)
 
         return x
-'''
-Base: first looks at each token in idx to see whether from vqvar or of special tokens;
-for tokens from vqvae, 'dequantize' them; for special tokens, use separate learned emb;
-then passed through linear layer and then processed with positional emb;
-fuse state through cross-attention
-a stack of self-attetnion block is applied
-'''
 
 
 class CrossCondTransHead(nn.Module):
@@ -452,8 +445,7 @@ class ActTransformer(nn.Module):
 
         batch_size = comb_state.shape[0]
         shape = (batch_size, self.block_size - 1)
-        # print('block_size', self.block_size)
-        # print('m_length', m_length)
+
         ids = torch.full(shape, mask_id, dtype=torch.long, device=tokens.device)
         ids[:, :start_t] = tokens[:, :start_t]
 
@@ -495,11 +487,7 @@ class ActTransformer(nn.Module):
             last_index = sorted_score_indices.gather(-1, num_token_masked.unsqueeze(-1) - 1)
             sorted_score_indices = sorted_score_indices * select_masked_indices + (last_index * ~select_masked_indices)
             ids.scatter_(-1, sorted_score_indices, mask_id)
-            # print('ids:', ids)
-            # print('mask:', src_token_mask)
-            # print('comb_state:', comb_state.shape)
-            # print('ids shape', ids.shape)
-            # print('ids', ids)
+
             logits = self.forward(idx=ids, src_mask=src_token_mask, comb_state=comb_state)[:, 0:]
 
             filtered_logits = logits  # top_p(logits, .5) # #top_k(logits, topk_filter_thres)
@@ -603,7 +591,7 @@ class ActTransformer(nn.Module):
         return ids, scores
 
 
-    def regressive_sample_ph(self, tokens, src_mask, act_t, comb_state, scores, m_length=12, step=1):
+    def regressive_sample_re(self, tokens, src_mask, act_t, comb_state, scores, m_length=12, step=1):
         '''
         :param first_tokens: token to start with (batch_size, 1)
         :param src_mask: token mask (batch_size, block_size)
@@ -684,16 +672,3 @@ class ActTransformer(nn.Module):
                 scores = scores.masked_fill(~is_mask, 0)
 
         return ids, scores
-
-'''
-first token provided and all others mark
-ed as masked
-loop: decide how many tokens are uncertain (using cosine schedule);
-    identify the most uncertain positions (using scores);
-    force those positions to remain masked;
-    pass the current sequence(with some masked tokens) through the transformer;
-    sample new tokens for the masked positions;
-    replace the masked positions with new tokens;
-    update 'incertainty' score based on the model's confidence
-final output [bs, block_size-1]
-'''

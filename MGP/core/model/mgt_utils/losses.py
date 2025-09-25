@@ -18,20 +18,11 @@ class ReConsLoss(nn.Module):
 
         self.bce_loss = nn.BCELoss()
 
-        # 4 global motion associated to root
-        # 12 local motion (3 local xyz, 3 vel xyz, 6 rot6d)
-        # 3 global vel xyz
-        # 4 foot contact
         self.pos_dim = pos_dim
-        # self.motion_dim = (nb_joints - 1) * 12 + 4 + 3 + 4
 
     def forward(self, action_pred, action_gt):
         loss = self.Loss(action_pred, action_gt)
-        # pos_loss = self.Loss(action_pred[..., self.pos_dim], action_gt[..., self.pos_dim])
-        # print('pos_loss:', pos_loss.item())
-        # print('action_pred:', action_gt[..., -1])
-        # bc_loss = self.bce_loss(action_pred[..., -1], action_gt[..., -1])
-        # print('bc_loss:', bc_loss.item())
+
         return loss #pos_loss + bc_loss
 
     def forward_joint(self, motion_pred, motion_gt):

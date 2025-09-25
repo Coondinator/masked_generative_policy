@@ -115,13 +115,6 @@ class TrainDP3Workspace:
 
         cprint("-----------------------------", "yellow")
         cprint("-----------------------------", "yellow")
-        # configure logging
-        # configure checkpoint
-
-        # topk_manager = TopKCheckpointManager(
-        #     save_dir=os.path.join(self.output_dir, 'checkpoints'),
-        #     **cfg.checkpoint.topk
-        # )
 
         # device transfer
         device = torch.device(cfg.training.device)
@@ -218,7 +211,6 @@ class TrainDP3Workspace:
                 avg_recons, avg_perplexity, avg_commit = 0., 0., 0.
 
             if nb_iter % self.model.args_vq.save_iter == 0:
-                # torch.save({'net': policy.state_dict()}, os.path.join(vq_out_dir, f'{nb_iter}_net_last.pth'))
                 torch.save({'net': policy.state_dict()}, os.path.join(vq_out_dir, f'{self.task_name}_{nb_iter}.pth'))
             if nb_iter % self.model.args_vq.visual_iter == 0:
                 self.visual_vq(cfg, cfg.policy.horizon, cfg.task.vq_dataset.zarr_path, env=env_runner_MGT, pad_mode=False)
@@ -255,8 +247,7 @@ class TrainDP3Workspace:
                     end = start + remain
                 else:
                     end = (i + 1) * horizon
-                # start = i * horizon
-                # end = (i + 1) * horizon
+
 
                 train_clip = train_action[start:end].unsqueeze(0)
                 val_clip = val_action[start:end].unsqueeze(0)

@@ -117,28 +117,14 @@ class TrainDP3Workspace:
         
         cfg.logging.name = str(cfg.logging.name)
         cprint("-----------------------------", "yellow")
-        cprint(f"[WandB] group: {cfg.logging.group}", "yellow")
-        cprint(f"[WandB] name: {cfg.logging.name}", "yellow")
         cprint("-----------------------------", "yellow")
-        use_wandb = True   
-        if use_wandb:  
-            self.wandb_run = wandb.init(
-                project="diffusion_policy_MGT",
-                name='trans',
-                group=cfg.logging.group
-            )
-        else:
-            self.wandb_run = None  
+        use_wandb = True
 
         topk_manager = TopKCheckpointManager(
             save_dir=os.path.join(self.output_dir, 'checkpoints'),
             **cfg.checkpoint.topk
         )
 
-        # checkpoint_path = "checkpoints/checkpoint_iter_80000.pth"  # or your specific path
-        # self.load_checkpoint(checkpoint_path)
-
-        # device transfer
         device = torch.device(cfg.training.device)
         self.model.to(device)
         optimizer_to(self.optimizer, device)
@@ -163,10 +149,9 @@ class TrainDP3Workspace:
                     f'ACC_masked. {loss_dict["acc_masked"]:.4f}', f'ACC_no_masked. {loss_dict["acc_no_masked"]:.4f}')
 
             # ========= eval for this epoch ==========
-            # policy = self.model
-            # policy.eval()          
+            policy = self.model
+            policy.eval()
           # run validation
-            '''
             if nb_iter % self.model.args_trans.eval_rand_iter == 0:
                 self.model.trans_eval()
                 test_loss_total = 0.0
@@ -217,7 +202,6 @@ class TrainDP3Workspace:
                 del result
                 del pred_action
                 del mse
-                '''
                 
             if nb_iter % self.model.args_trans.eval_env == 0:
                 runner_log = env_runner_MGT.run_regress(self.model, action_step=16, refine_step=1)
@@ -226,34 +210,10 @@ class TrainDP3Workspace:
                 for key, value in runner_log.items():
                     if isinstance(value, float):
                         cprint(f"{key}: {value:.4f}", 'magenta')
-                if use_wandb:
-                    wandb.log({
-                        "Eval/Iteration": nb_iter,
-                        **runner_log
-                    }, step=nb_iter)
-                # £policy.train()
             # checkpoint
             if nb_iter % self.model.args_trans.save_iter == 0:
-                # checkpointing
-                # continue
-                self.save_checkpoint(path=None,nb_iter=nb_iter)
-                
-                # # sanitize metric names
-                # metric_dict = dict()
-                # for key, value in step_log.items():
-                #     new_key = key.replace('/', '_')
-                #     metric_dict[new_key] = value
-                
-                # # We can't copy the last checkpoint here
-                # # since save_checkpoint uses threads.
-                # # therefore at this point the file might have been empty!
-                # topk_ckpt_path = topk_manager.get_ckpt_path(metric_dict)
 
-                # if topk_ckpt_path is not None:
-                #     self.save_checkpoint(path=topk_ckpt_path)
-     
-        if use_wandb:
-            wandb.finish()
+                self.save_checkpoint(path=None,nb_iter=nb_iter)
 
 
     def eval(self):

@@ -18,7 +18,6 @@ def vq_args_parser():
     parser.add_argument('--gamma', default=0.1, type=float, help="learning rate decay")
     parser.add_argument('--weight-decay', default=0.0, type=float, help='weight decay')
     parser.add_argument("--commit", type=float, default=0.02, help="hyper-parameter for the commitment loss")
-    parser.add_argument('--loss-vel', type=float, default=0.5, help='hyper-parameter for the velocity loss')
     parser.add_argument('--recons-loss', type=str, default='l1_smooth', help='reconstruction loss')
 
     ## vqvae arch
@@ -57,16 +56,13 @@ def vq_args_parser():
     parser.add_argument('--visual-iter', default=5000, type=int, help='print frequency')
     parser.add_argument('--seed', default=123, type=int, help='seed for initializing training.')
     
-    parser.add_argument('--vis-gt', action='store_true', help='whether visualize GT motions')
     parser.add_argument('--nb-vis', default=20, type=int, help='nb of visualizations')
-
-    parser.add_argument('--sep-uplow', action='store_true', help='whether visualize GT motions')
     args, unknown = parser.parse_known_args()
     return args
 
 
 def trans_args_parser():
-    parser = argparse.ArgumentParser(description='Optimal Transport AutoEncoder training for Amass',
+    parser = argparse.ArgumentParser(description='Optimal Transport AutoEncoder training ',
                                      add_help=True,
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
@@ -77,7 +73,7 @@ def trans_args_parser():
     parser.add_argument('--dataname', type=str, default='t2m', help='dataset directory')
     parser.add_argument('--batch-size', default=32, type=int, help='batch size')
     parser.add_argument('--fps', default=[20], nargs="+", type=int, help='frames per second')
-    parser.add_argument('--seq-len', type=int, default=64, help='training motion length')
+    parser.add_argument('--seq-len', type=int, default=64, help='training length')
 
     ## optimization
     parser.add_argument('--total-iter', default=150000, type=int, help='number of total iterations to run')
