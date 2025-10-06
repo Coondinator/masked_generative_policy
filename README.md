@@ -3,16 +3,17 @@
 Official implementation of **“Masked Generative Policy for Robotic Control”**, under review at **ICLR 2026**.  
 **Masked Generative Policy (MGP)** is a **fast, accurate, adaptive, and globally-coherent generative policy** for visuomotor imitation learning — combining the efficiency of autoregressive transformers and the flexibility of diffusion models.
 
-[[📄 Relevant Code](https://anonymous.4open.science/r/masked_generative_policy-8BC6/MGP)] • [[🎥 Videos & Results](https://anonymous.4open.science/r/masked_generative_policy-8BC6/Video Results)]
+[[📄 Relevant Code](https://anonymous.4open.science/r/masked_generative_policy-8BC6/MGP)] • [[🎥 Videos & Results](https://anonymous.4open.science/r/masked_generative_policy-8BC6/Video)]
 
 ---
 
 ## 🌟 Overview
 
 <p align="center">
-  <img src="docs/MGP_Teaser_Final.pdf" width="560">
+  <img src="docs/MGP_Teaser_Final.png" width="800">
 </p>
 
+[//]: # (![]&#40;docs/MGP_Teaser_Final.pdf&#41;)
 **MGP** is the ***first*** masked generative framework for robot imitation learning which achieves **low inference latency** and **high task success rates** while supporting **rapid plan edits** during execution.
 
 ***Two*** novel sampling paradigms are proposed:
@@ -24,7 +25,7 @@ Official implementation of **“Masked Generative Policy for Robotic Control”*
 
 ## 🧠 Method Summary
 
-<p align="center">   <img src="docs/MGP_Fig2_Final3.pdf" width="400"> </p> <p align="center">   <em> Left: Training Stage 1 - Action Tokenizer and Middle: Training Stage 2 - Masked Generative Transformer and Right: Short-horizon sampling (MGP-Short). </p> <p align="center">   <img src="docs/MGP_Fig3_Final.pdf" width="400"> </p> <p align="center">   Long-horizon sampling (MGP-Long) through Adaptive Token Refinement (ATR). </p>
+<p align="center">   <img src="docs/MGP_Fig2_Final.png" width="800"> </p> <p align="center">   <em> Left: Training Stage 1 - Action Tokenizer and Middle: Training Stage 2 - Masked Generative Transformer and Right: Short-horizon sampling (MGP-Short). </p> <p align="center">   <img src="docs/MGP_Fig3_Final.png" width="600"> </p> <p align="center">   Long-horizon sampling (MGP-Long) through Adaptive Token Refinement (ATR). </p>
 
 **MGP-Long** integrates a novel **Adaptive Token Refinement (ATR)** strategy that predicts a global trajectory and iteratively refines the **yet-to-be-executed** action tokens as **new observations** arrive, while keeping executed actions fixed. During refinement, our ***Posterior-Confidence Estimation*** selectively masks and corrects low-likelihood unexecuted tokens, continuously updating confidence scores to guide targeted edits using current observations and historic states.
 
@@ -50,7 +51,7 @@ MGP (MGP-Long) demonstrates **strong robustness** to missing visual inputs, even
 
 ## 🔄 Dynamic Environment Results
 
-<p align="center">   <img src="docs/basketball.gif" width="230">   <img src="docs/pick_place_wall-target.gif" width="230">   <img src="docs/pick_place_wall-wall.gif" width="230"><br>   <img src="docs/push.gif" width="230">   <img src="docs/push_wall-target.gif" width="230"> </p> <p align="center">  MGP (MGP-Long) delivers the best performance on five dynamic environments: <em>Basketball</em>, <em>Pick Place Wall–Wall </em>, <em>Pick Place Wall–Target</em>, <em>Push</em>, and <em>Push Wall</em>. </p>
+<p align="center">   <img src="docs/basketball.gif" width="200">   <img src="docs/pick_place_wall-target.gif" width="200">   <img src="docs/pick_place_wall-wall.gif" width="200"><br>   <img src="docs/push.gif" width="200">   <img src="docs/push_wall-target.gif" width="200"> </p> <p align="center">  MGP (MGP-Long) delivers the best performance on five dynamic environments: <em>Basketball</em>, <em>Pick Place Wall–Wall </em>, <em>Pick Place Wall–Target</em>, <em>Push</em>, and <em>Push Wall</em>. </p>
 
 ------
 
