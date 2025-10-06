@@ -59,9 +59,9 @@ MGP (MGP-Long) demonstrates **strong robustness** to missing visual inputs, even
 
 ### Examples of Expert Demonstration
 
-<p align="center">   <img src="docs/colorchange_demo1.gif" width="340">   <img src="docs/colorchange_demo2.gif" width="340"> </p> <p align="center">   <em>Button Press Color Change Task.</em> Visualization of two expert demonstrations used for training. Videos are played at {N}× real-time speed. </p>
+<p align="center">   <img src="docs/colorchange_demo1.gif" width="280">   <img src="docs/colorchange_demo2.gif" width="280"> </p> <p align="center">   <em>Button Press Color Change Task.</em> Visualization of two expert demonstrations used for training. Videos are played at {N}× real-time speed. </p>
 
-<p align="center">   <img src="docs/onoff_demo1.gif" width="340">   <img src="docs/onoff_demo2.gif" width="340"> </p> <p align="center">   <em>Button Press On/Off Task.</em> Visualization of two expert demonstrations used for training. Videos are played at {N}× real-time speed. </p>
+<p align="center">   <img src="docs/onoff_demo1.gif" width="280">   <img src="docs/onoff_demo2.gif" width="280"> </p> <p align="center">   <em>Button Press On/Off Task.</em> Visualization of two expert demonstrations used for training. Videos are played at {N}× real-time speed. </p>
 
 ### Visulization Results
 
