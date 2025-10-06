@@ -10,7 +10,7 @@ Official implementation of **“Masked Generative Policy for Robotic Control”*
 ## 🌟 Overview
 
 <p align="center">
-  <img src="docs/MGP_Teaser_Final.png" width="800">
+  <img src="docs/MGP_Teaser_Final.png" width="1000">
 </p>
 
 [//]: # (![]&#40;docs/MGP_Teaser_Final.pdf&#41;)
