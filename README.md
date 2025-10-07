@@ -3,7 +3,7 @@
 Official implementation of **“Masked Generative Policy for Robotic Control”**, under review at **ICLR 2026**.  
 **Masked Generative Policy (MGP)** is a **fast, accurate, adaptive, and globally-coherent generative policy** for visuomotor imitation learning — combining the efficiency of autoregressive transformers and the flexibility of diffusion models.
 
-[[📄 Relevant Code](https://anonymous.4open.science/r/masked_generative_policy-8BC6/MGP)] • [[🎥 Videos & Results](https://anonymous.4open.science/r/masked_generative_policy-8BC6/Video)]
+[//]: # ([[📄 Relevant Code]&#40;https://anonymous.4open.science/r/masked_generative_policy-8BC6/MGP&#41;] • [[🎥 Videos & Results]&#40;https://anonymous.4open.science/r/masked_generative_policy-8BC6/Video&#41;])
 
 ---
 
@@ -59,15 +59,15 @@ MGP (MGP-Long) demonstrates **strong robustness** to missing visual inputs, even
 
 ### Examples of Expert Demonstration
 
-<p align="center">   <img src="docs/colorchange_demo1.gif" width="280">   <img src="docs/colorchange_demo2.gif" width="280"> </p> <p align="center">   <em>Button Press Color Change Task.</em> Visualization of two expert demonstrations used for training. Videos are played at {N}× real-time speed. </p>
+<p align="center">   <img src="docs/colorchange_demo1.gif" width="240">   <img src="docs/colorchange_demo2.gif" width="240"> </p> <p align="center">   <em>Button Press Color Change Task.</em> Visualization of two expert demonstrations used for training. Videos are played at 3× real-time speed. </p>
 
-<p align="center">   <img src="docs/onoff_demo1.gif" width="280">   <img src="docs/onoff_demo2.gif" width="280"> </p> <p align="center">   <em>Button Press On/Off Task.</em> Visualization of two expert demonstrations used for training. Videos are played at {N}× real-time speed. </p>
+<p align="center">   <img src="docs/onoff_demo1.gif" width="240">   <img src="docs/onoff_demo2.gif" width="240"> </p> <p align="center">   <em>Button Press On/Off Task.</em> Visualization of two expert demonstrations used for training. Videos are played at 3× real-time speed. </p>
 
 ### Visulization Results
 
-<p align="center">   <img src="docs/colorchange_mgplong.gif" width="340">   <img src="docs/colorchange_short.gif" width="340"> </p> <p align="center">   <em>Button Press Color Change Task.</em> Qualitative results of MGP-Long (Left) and short-horizon methods (Right). </p>
+<p align="center">   <img src="docs/colorchange_mgplong.gif" width="280">   <img src="docs/colorchange_short.gif" width="280"> </p> <p align="center">   <em>Button Press Color Change Task.</em> Qualitative results of MGP-Long (Left) and short-horizon methods (Right). </p>
 
-<p align="center">   <img src="docs/onoff_mgplong.gif" width="340">   <img src="docs/onoff_short.gif" width="340"> </p> <p align="center">   <em>Button Press On/Off Task.</em> Qualitative results of MGP-Long (Left) and short-horizon methods (Right). </p>
+<p align="center">   <img src="docs/onoff_mgplong.gif" width="280">   <img src="docs/onoff_short.gif" width="280"> </p> <p align="center">   <em>Button Press On/Off Task.</em> Qualitative results of MGP-Long (Left) and short-horizon methods (Right). </p>
 
 ### MGP-Long is the only method that succeeds on both non-Markovian button tasks, achieving a 100% success rate.
 
