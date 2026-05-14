@@ -1,4 +1,4 @@
-# 🦾Masked Generative Policy For Robotic Control(ICLR2026)
+# 🦾 Masked Generative Policy For Robotic Control (ICLR 2026)
 
 Official implementation of **“Masked Generative Policy for Robotic Control”**  
 **Masked Generative Policy (MGP)** is a **fast, accurate, adaptive, and globally-coherent generative policy** for visuomotor imitation learning — combining the efficiency of autoregressive transformers and the flexibility of diffusion models.
